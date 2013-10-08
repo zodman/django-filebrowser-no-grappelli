@@ -4,31 +4,31 @@
 {% load admin_static i18n fb_tags fb_csrf %}
 
 <!-- STYLESHEETS -->
-{% block stylesheets %}
+{% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static "filebrowser/css/filebrowser.css" %}" />
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />
 {% endblock %}
 
 <!-- COLTYPE/BODYCLASS -->
-{% block bodyclass %}change-form grp-filebrowser{% if query.pop %} grp-popup{% endif %}{% endblock %}
-{% block content-class %}{% endblock %}
+{% block bodyclass %}change-form filebrowser{% if query.pop %} popup{% endif %}{% endblock %}
+{% block coltype %}colM{% endblock %}
 
 <!-- BREADCRUMBS -->
 {% block breadcrumbs %}{% include "filebrowser/include/breadcrumbs.html" %}{% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
-<div id="grp-content-container">
+<div id="content-main">
     <form action="{% query_string '' 'p' %}" method="post">{% fb_csrf_token %}
-        {% if form.errors %}<p class="errornote">{% trans 'Please correct the following errors.' %}</p>{% endif %}
-        <fieldset class="grp-module aligned">
-            <div class="grp-row {% if form.dir_name.errors %}grp-errors{% endif %}">
-                <div class="l-2c-fluid l-d-4">
-                    <div class="c-1"><label class="required" for="id_dir_name">{{ form.name.label }}</label></div>
-                    <div class="c-2">
+        <div>
+            {% if form.errors %}<p class="errornote">{% trans 'Please correct the following errors.' %}</p>{% endif %}
+            <fieldset class="module aligned wide">
+                <div class="form-row field-{{ form.name.name }}{% if form.name.errors %} errors{% endif %}">
+                    {% if form.name.errors %}{{ form.name.errors }}{% endif %}
+                    <div>
+                        <label class="required" for="id_dir_name">{{ form.name.label }}</label>
                         {{ form.name }}
-                        {% if form.dir_name.errors %}<ul class="errorlist">{{ form.name.errors }}</ul>{% endif %}
-                        <p class="grp-help">
+                        <p class="help">
                             {{ form.name.help_text|safe }}
                             {% if settings_var.NORMALIZE_FILENAME or settings_var.CONVERT_FILENAME %}
                                 <br />
@@ -42,13 +42,10 @@
                         </p>
                     </div>
                 </div>
+            </fieldset>
+            <div class="submit-row">
+                <input type="submit" value="{% trans 'Submit' %}" class="default" />
             </div>
-        </fieldset>
-        <footer class="grp-module grp-submit-row grp-fixed-footer">
-            <header style="display:none"><h1>Submit Options</h1></header>
-            <ul>
-                <li><input type="submit" value="{% trans 'Submit' %}" class="grp-button grp-default" /></li>
-            </ul>
         </div>
     </form>
 </div>

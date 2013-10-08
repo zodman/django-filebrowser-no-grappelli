@@ -1,29 +1,19 @@
 {% load i18n fb_tags %}
-<nav class="grp-pagination">
-    <header style="display:none"><h1>Pagination</h1></header>
-    <ul class="grp-horizontal-list">
-        {% if query.q or query.filter_date or query.filter_type %}
-        <li class="grp-results"><span>{{ filelisting.results_current }} {% ifequal filelisting.results_current 1 %}{% trans 'result' %}{% else %}{% trans 'results' %}{% endifequal %}</span></li>
-        {% endif %}
-        <li class="grp-results">
-            {% if query.q or filelisting.results_total != filelisting.results_current %}
-            <a href="{% query_string "" "filter_date,filter_type,p,q" %}" class="total">{{ filelisting.results_total }} {% trans 'total' %}</a>
+
+<p class="paginator">
+    {% if page_range %}
+        {% for i in page_range %}
+            {% ifequal i "." %}
+                <span>...</span>
             {% else %}
-            <span>{{ filelisting.results_total }} {% trans "total" %}</span>
-            {% endif %}
-        </li>
-        {% if page_range %}
-            {% for i in page_range %}
-                {% ifequal i "." %}
-                    <li class="grp-separator"><span>...</span></li>
+                {% ifequal i page_num %}
+                    <span class="this-page">{{ i|add:"1" }}</span>
                 {% else %}
-                    {% ifequal i page_num %}
-                        <li>{{ i|add:"1" }}</li>
-                    {% else %}
-                        <li><a href="{% query_string "" "p" %}&amp;p={{ i|add:"1" }}">{{ i|add:"1" }}</a></li>
-                    {% endifequal %}
+                    <a href="{% query_string "" "p" %}&amp;p={{ i|add:"1" }}"{% if forloop.last %} class="end"{% endif %}>{{ i|add:"1" }}</a>
                 {% endifequal %}
-            {% endfor %}
-        {% endif %}
-    </ul>
-</nav>
+            {% endifequal %}
+        {% endfor %}
+    {% endif %}
+    {{ filelisting.results_total }} {% trans 'total' %}
+    {% if query.q or filelisting.results_total != filelisting.results_current %}&nbsp;&nbsp;<a href="{% query_string "" "filter_date,filter_type,p,q" %}" class="showall">{% trans 'Show all' %}</a>{% endif %}
+</p>
