@@ -17,10 +17,10 @@ FileBrowser 3.5 requires
 * Django 1.4+ (http://www.djangoproject.com)
 * Pillow (https://github.com/python-imaging/Pillow)
 
-No Grapelli
+No Grappelli
 -----------
 
-This fork removes the dependency on Grappeli.
+This fork removes the dependency on Grappelli.
 
 Installation
 ------------
