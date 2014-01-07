@@ -7,6 +7,7 @@ import time
 import platform
 import mimetypes
 from tempfile import NamedTemporaryFile
+import warnings
 
 # DJANGO IMPORTS
 from django.core.files import File
@@ -396,19 +397,21 @@ class FileObject():
         return None
 
     # FOLDER ATTRIBUTES/PROPERTIES
-    # directory
-    # folder
+    # directory (deprecated)
+    # folder (deprecated)
     # is_folder
     # is_empty
 
     @property
     def directory(self):
-        "Folder(s) relative from site.directory"  # FIXME: needed/rename?
+        "Folder(s) relative from site.directory"
+        warnings.warn("directory will be removed with 3.6, use path_relative_directory instead.", DeprecationWarning)
         return path_strip(self.path, self.site.directory)
 
     @property
     def folder(self):
-        "Parent folder(s)"  # FIXME: needed/rename?
+        "Parent folder(s)"
+        warnings.warn("directory will be removed with 3.6, use dirname instead.", DeprecationWarning)
         return os.path.dirname(path_strip(os.path.join(self.head, ''), self.site.directory))
 
     _is_folder_stored = None
@@ -421,36 +424,18 @@ class FileObject():
 
     @property
     def is_empty(self):
-        "True, if folder is empty"
+        "True, if folder is empty. False otherwise, or if the object is not a folder."
         if self.is_folder:
             dirs, files = self.site.storage.listdir(self.path)
             if not dirs and not files:
                 return True
         return False
 
-    # ORIGINAL ATTRIBUTES/PROPERTIES
-    # original
-    # original_filename
-
-    @property
-    def original(self):
-        "Returns the original FileObject"
-        if self.is_version:
-            relative_path = self.head.replace(self.versions_basedir, "").lstrip("/")
-            return FileObject(os.path.join(self.site.directory, relative_path, self.original_filename), site=self.site)
-        return self
-
-    @property
-    def original_filename(self):
-        "Get the filename of an original image from a version"
-        tmp = self.filename_root.split("_")
-        if tmp[len(tmp)-1] in VERSIONS:
-            return u"%s%s" % (self.filename_root.replace("_%s" % tmp[len(tmp)-1], ""), self.extension)
-        return self.filename
-
     # VERSION ATTRIBUTES/PROPERTIES
     # is_version
     # versions_basedir
+    # original
+    # original_filename
 
     @property
     def is_version(self):
@@ -470,9 +455,25 @@ class FileObject():
         else:
             return ""
 
+    @property
+    def original(self):
+        "Returns the original FileObject"
+        if self.is_version:
+            relative_path = self.head.replace(self.versions_basedir, "").lstrip("/")
+            return FileObject(os.path.join(self.site.directory, relative_path, self.original_filename), site=self.site)
+        return self
+
+    @property
+    def original_filename(self):
+        "Get the filename of an original image from a version"
+        tmp = self.filename_root.split("_")
+        if tmp[len(tmp)-1] in VERSIONS:
+            return u"%s%s" % (self.filename_root.replace("_%s" % tmp[len(tmp)-1], ""), self.extension)
+        return self.filename
+
     # VERSION METHODS
-    # versions
-    # admin_versions
+    # versions()
+    # admin_versions()
     # version_name(suffix)
     # version_path(suffix)
     # version_generate(suffix)
@@ -480,29 +481,29 @@ class FileObject():
     def versions(self):
         "List of versions (not checking if they actually exist)"
         version_list = []
-        if self.filetype == "Image":
+        if self.filetype == "Image" and not self.is_version:
             for version in VERSIONS:
-                version_list.append(os.path.join(self.versions_basedir, self.folder, self.version_name(version)))
+                version_list.append(os.path.join(self.versions_basedir, self.dirname, self.version_name(version)))
         return version_list
 
     def admin_versions(self):
         "List of admin versions (not checking if they actually exist)"
         version_list = []
-        if self.filetype == "Image":
+        if self.filetype == "Image" and not self.is_version:
             for version in ADMIN_VERSIONS:
-                version_list.append(os.path.join(self.versions_basedir, self.folder, self.version_name(version)))
+                version_list.append(os.path.join(self.versions_basedir, self.dirname, self.version_name(version)))
         return version_list
 
     def version_name(self, version_suffix):
-        "Name of a version"
+        "Name of a version"  # FIXME: version_name for version?
         return self.filename_root + "_" + version_suffix + self.extension
 
     def version_path(self, version_suffix):
-        "Path to a version (relative to storage location)"
-        return os.path.join(self.versions_basedir, self.folder, self.version_name(version_suffix))
+        "Path to a version (relative to storage location)"  # FIXME: version_path for version?
+        return os.path.join(self.versions_basedir, self.dirname, self.version_name(version_suffix))
 
     def version_generate(self, version_suffix):
-        "Generate a version"
+        "Generate a version"  # FIXME: version_generate for version?
         path = self.path
         if FORCE_PLACEHOLDER or (SHOW_PLACEHOLDER and not self.site.storage.isfile(path)):
             path = PLACEHOLDER
@@ -549,9 +550,9 @@ class FileObject():
         return version_path
 
     # DELETE METHODS
-    # delete
-    # delete_versions
-    # delete_admin_versions
+    # delete()
+    # delete_versions()
+    # delete_admin_versions()
 
     def delete(self):
         "Delete FileObject (deletes a folder recursively)"
