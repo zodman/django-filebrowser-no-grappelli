@@ -3,34 +3,20 @@
 <!-- LOADING -->
 {% load admin_static i18n fb_tags fb_versions %}
 
-<!-- STYLESHEETS -->
-{% block stylesheets %}
-    {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{% static "filebrowser/css/filebrowser.css" %}" />
-{% endblock %}
-
 <!-- JAVASCRIPTS -->
-{% block javascripts %}
+{% block extrahead %}
     {{ block.super }}
+    <script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
+    <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
     {% ifequal query.pop '1' %} <!-- FileBrowseField -->
     <script language="javascript" type="text/javascript" src="{% static "filebrowser/js/FB_FileBrowseField.js" %}"></script>
     {% endifequal %}
     {% ifequal query.pop '2' %} <!-- TinyMCE -->
-    <script language="javascript" type="text/javascript" src="{% static "grappelli/tinymce/jscripts/tiny_mce/tiny_mce_popup.js" %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static "tiny_mce/tiny_mce_popup.js" %}"></script>
     <script language="javascript" type="text/javascript" src="{% static "filebrowser/js/FB_TinyMCE.js" %}"></script>
     {% if query.mce_rdomain %}<script language="javascript">document.domain = "{{ query.mce_rdomain }}"</script>{% endif %}
     {% endifequal %}
 {% endblock %}
-
-<!-- COLTYPE/BODYCLASS -->
-{% block bodyclass %}grp-change-list grp-filebrowser{% if query.pop %} grp-popup{% endif %}{% endblock %}
-{% block content-class %}{% endblock %}
-
-<!-- BREADCRUMBS -->
-{% block breadcrumbs %}{% endblock %}
-
-<!-- OBJECT-TOOLS -->
-{% block object-tools %}{{ image_version.path }}{% endblock %}
 
 <!-- CONTENT -->
 {% block content %}
@@ -43,7 +29,7 @@
                 $(document).ready(function() {
                     FileSubmit('{{ image_version.path }}', '{{ image_version.url }}', '{{ thumbnail_version.url }}', '{{ image_version.filetype }}');
                 });
-            })(grp.jQuery);
+            })(django.jQuery);
         </script>
         {% endifequal %}
         {% ifequal query.pop '2' %} <!-- TinyMCE -->
@@ -52,7 +38,7 @@
                 $(document).ready(function() {
                     FileBrowserDialogue.fileSubmit('{{ image_version.url|escapejs }}');
                 });
-            })(grp.jQuery);
+            })(django.jQuery);
         </script>
         {% endifequal %}
     {% endif %}
