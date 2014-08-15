@@ -25,5 +25,4 @@ setup(
         'Programming Language :: Python',
     ],
     zip_safe = False,
-    use_2to3=True,
 )

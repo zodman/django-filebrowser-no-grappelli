@@ -5,7 +5,7 @@ from django import template
 from django.utils.http import urlquote
 
 # FILEBROWSER IMPORTS
-from filebrowser.settings import SELECT_FORMATS
+from filebrowser.settings import EXTENSIONS, SELECT_FORMATS
 
 register = template.Library()
 
@@ -52,7 +52,7 @@ def get_query_string(p, new_params=None, remove=None):
     if remove is None:
         remove = []
     for r in remove:
-        for k in p.keys():
+        for k in list(p):
             #if k.startswith(r):
             if k == r:
                 del p[k]
@@ -136,8 +136,22 @@ def selectable(parser, token):
     try:
         tag, filetype, format = token.split_contents()
     except:
-        raise TemplateSyntaxError, "%s tag requires 2 arguments" % token.contents.split()[0]
+        raise TemplateSyntaxError("%s tag requires 2 arguments" % token.contents.split()[0])
 
     return SelectableNode(filetype, format)
 
 register.tag(selectable)
+
+
+def get_file_extensions(qs):
+    extensions = []
+    if "type" in qs and qs.get("type") in SELECT_FORMATS:
+        for format in SELECT_FORMATS.get(qs.get("type"), []):
+            extensions.extend(EXTENSIONS[format])
+    else:
+        for k, v in EXTENSIONS.items():
+            for item in v:
+                if item: extensions.append(item)
+    return extensions
+
+register.simple_tag(get_file_extensions)
