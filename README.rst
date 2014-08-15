@@ -22,6 +22,10 @@ No Grappelli
 
 This fork removes the dependency on Grappelli.
 
+.. figure:: docs/_static/Screenshot.png
+   :scale: 50 %
+   :alt: django filebrowser no grappelli
+
 Installation
 ------------
 
@@ -32,7 +36,7 @@ Documentation
 
 http://readthedocs.org/docs/django-filebrowser/
 
-It also has fake model to show filebrowser in admin dashboard, but you can disable it by setting `FILEBROWSER_SHOW_IN_DASHBOARD = False`.
+It also has fake model to show filebrowser in admin dashboard, but you can disable it by setting ``FILEBROWSER_SHOW_IN_DASHBOARD = False``.
 
 Translation
 -----------
