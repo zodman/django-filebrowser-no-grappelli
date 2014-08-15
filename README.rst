@@ -32,6 +32,8 @@ Documentation
 
 http://readthedocs.org/docs/django-filebrowser/
 
+It also has fake model to show filebrowser in admin dashboard, but you can disable it by setting `FILEBROWSER_SHOW_IN_DASHBOARD = False`.
+
 Translation
 -----------
 

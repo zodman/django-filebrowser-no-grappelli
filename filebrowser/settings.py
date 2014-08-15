@@ -104,6 +104,8 @@ SEARCH_TRAVERSE = getattr(settings, "FILEBROWSER_SEARCH_TRAVERSE", False)
 DEFAULT_PERMISSIONS = getattr(settings, "FILEBROWSER_DEFAULT_PERMISSIONS", 0o755)
 # Overwrite existing files on upload
 OVERWRITE_EXISTING = getattr(settings, "FILEBROWSER_OVERWRITE_EXISTING", True)
+# Add fake model to show filebrowser in admin dashboard
+SHOW_IN_DASHBOARD = getattr(settings, "FILEBROWSER_SHOW_IN_DASHBOARD", True)
 
 # EXTRA TRANSLATION STRINGS
 

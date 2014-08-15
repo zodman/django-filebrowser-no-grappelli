@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from .models import FileBrowser
+from .settings import SHOW_IN_DASHBOARD
 
 
 class FileBrowserAdmin(admin.ModelAdmin):
@@ -24,4 +25,5 @@ class FileBrowserAdmin(admin.ModelAdmin):
         return HttpResponseRedirect(reverse('filebrowser:fb_browse'))
 
 
-admin.site.register(FileBrowser, FileBrowserAdmin)
+if SHOW_IN_DASHBOARD:
+    admin.site.register(FileBrowser, FileBrowserAdmin)
