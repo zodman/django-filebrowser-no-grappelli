@@ -11,7 +11,7 @@ Django FileBrowser Documentation
 **Media-Management with Grappelli**.
 
 .. note::
-    |filebrowser| 3.5.5 requires Django 1.4 or 1.5 or 1.6 and |grappelli| 2.4 or 2.5.
+    |filebrowser| 3.5.6 requires Django 1.4 or 1.5 or 1.6 and |grappelli| 2.4 or 2.5.
 
 Installation and Setup
 ----------------------
@@ -90,7 +90,7 @@ Use the `FileBrowser Google Group <http://groups.google.com/group/django-filebro
 Versions and Compatibility
 --------------------------
 
-* FileBrowser 3.5.6 (Development Version, not yet released, see Branch Stable/3.5.x)
-* FileBrowser 3.5.5 (April 13th, 2014): Compatible with Django 1.4/1.5/1.6
+* FileBrowser 3.5.7 (Development Version, not yet released, see Branch Stable/3.5.x)
+* FileBrowser 3.5.6 (April 16th, 2014): Compatible with Django 1.4/1.5/1.6
 
 Older versions are availabe at GitHub, but are not supported anymore.

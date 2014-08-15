@@ -8,8 +8,18 @@
 Changelog
 =========
 
-3.5.6 (not yet released)
+3.5.7 (not yet released)
 ------------------------
+
+3.5.6 (August 16th, 2014)
+------------------------
+
+* New: Add fake model to show filebrowser in admin dashboard
+* New: Make fake model optional
+* Improved: Restore the filebrowser icon for file fields.
+* Improved: Escape extension dots in default EXCLUDE list, avoid empty entry
+* Improved: Set xframe_options_sameorigin policy on filebrowser views.
+* Fixed: Fix filebrowser button for newly added inlines
 
 3.5.5 (April 13th, 2014)
 ------------------------
