@@ -5,14 +5,16 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
-    name='django-filebrowser',
+    name='django-filebrowser-no-grappelli',
     version='3.5.7',
     description='Media-Management no Grappelli',
     long_description = read('README.rst'),
-    url = 'http://django-filebrowser.readthedocs.org',
+    url = 'https://github.com/smacker/django-filebrowser-no-grappelli',
     download_url='',
     author='Patrick Kranzlmueller, Axel Swoboda (vonautomatisch)',
     author_email='office@vonautomatisch.at',
+    maintainer='Maxim Sukharev',
+    maintainer_email='max@smacker.ru',
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
