@@ -155,3 +155,11 @@ def get_file_extensions(qs):
     return extensions
 
 register.simple_tag(get_file_extensions)
+
+
+try:  # Import cycle from future for django 1.7+
+    from django.templatetags.future import cycle
+except ImportError:
+    pass
+else:
+    register.tag(cycle)
