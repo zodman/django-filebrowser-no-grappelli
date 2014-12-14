@@ -11,13 +11,11 @@ Changelog
 3.5.8 (not yet released)
 ------------------------
 
-* Fixed: Wrong grappelli versions with setup.py.
-* Fixed: Removed cycle templatetag (for compatibility with Django 1.4 to 1.7).
 
-3.5.7 (September 10th 2014)
+3.5.7 (December 14th 2014)
 ---------------------------
 
-* New: Compatibility with Django 1.7 and Grappelli 2.6.x.
+* New: Compatibility with Django 1.7.
 * Improved: Updated tests because of the new random suffix with get_available_name (django storage).
 * Improved: Added an icon in order to mark finished uploads.
 * Improved: Show resulting filename (e.g. with suffix, converted) after successful upload.
