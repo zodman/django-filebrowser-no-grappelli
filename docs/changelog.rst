@@ -12,6 +12,7 @@ Changelog
 ------------------------
 
 * New: Sort by multiple attributes.
+* Improved: Add back button from upload page.
 * Fixed: Compatibility with Django 1.4.
 * Fixed: Management command when generating all versions (fb_version_generate).
 * Fixed: Home link with breadcrumbs.
