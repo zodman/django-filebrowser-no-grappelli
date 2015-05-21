@@ -102,11 +102,16 @@
         <div>
             <fieldset class="module aligned">
             <div class="form-row" id="file-uploader">
-                <div>
+                <div class="form-col">
                     <noscript>
                         {% trans "Please enable Javascript to upload files." %}
                     </noscript>
                 </div>
+            </div>
+            <div class="form-row" id="back-button">
+                {% with breadcrumbs|last as last_breadcrumb %}
+                    <a class="ui button" href="{% url 'filebrowser:fb_browse' %}{% query_string "" "q,dir,filename,p" %}&amp;dir={{ last_breadcrumb.1|urlencode }}">{% trans 'Return to uploads' %}</a>
+                {% endwith %}
             </div>
             </fieldset>
             <fieldset class="module aligned">
