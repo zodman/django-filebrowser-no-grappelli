@@ -11,6 +11,11 @@ Changelog
 3.5.8 (not yet released)
 ------------------------
 
+* New: Sort by multiple attributes.
+* Fixed: Compatibility with Django 1.4.
+* Fixed: Management command when generating all versions (fb_version_generate).
+* Fixed: Home link with breadcrumbs.
+* Fixed: Removed cycle templatetag (for compatibility with Django 1.4 to 1.7).
 
 3.5.7 (December 14th 2014)
 ---------------------------

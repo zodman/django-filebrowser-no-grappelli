@@ -109,7 +109,7 @@ SHOW_IN_DASHBOARD = getattr(settings, "FILEBROWSER_SHOW_IN_DASHBOARD", True)
 
 # EXTRA TRANSLATION STRINGS
 
-# The following strings are not availabe within views or templates
+# The following strings are not available within views or templates
 _('Folder')
 _('Image')
 _('Video')

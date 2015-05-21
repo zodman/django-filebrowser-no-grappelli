@@ -3,7 +3,7 @@
 
 <div class="breadcrumbs">
     {% if not query.pop %}
-        <a href="../../">{% trans "Home" %}</a> &rsaquo;
+        <a href="{% url 'admin:index' %}">{% trans "Home" %}</a> &rsaquo;
     {% endif %}
 
     {% if breadcrumbs or breadcrumbs_title %}
