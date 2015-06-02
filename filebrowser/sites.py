@@ -586,7 +586,11 @@ class FileBrowserSite(object):
             signals.filebrowser_post_upload.send(sender=request, path=folder, file=f, site=self)
 
             # let Ajax Upload know whether we saved it or not
-            ret_json = {'success': True, 'filename': f.filename}
+            ret_json = {
+                'success': True,
+                'filename': f.filename,
+                'url': f.url
+            }
             return HttpResponse(json.dumps(ret_json), content_type="application/json")
 
 storage = DefaultStorage()

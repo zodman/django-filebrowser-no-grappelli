@@ -78,7 +78,7 @@
                 },
                 onComplete: function(id, fileName, resp){
                     if (resp.success) {
-                        this.getItem(id).find('.qq-upload-file').html(resp.filename);
+                        this.getItem(id).find('.qq-upload-file').html('<a href="' + resp.url + '">'+ resp.filename + '</a>');
                     }
                 },
                 showMessage: function(message){ alert(message); }
