@@ -33,7 +33,6 @@
                     </div>
                 </div>
             </fieldset>
-            {% if fileobject.filetype == "Image" %}
             <fieldset class="module aligned">
                 <h2>{% trans "Edit" %}</h2>
                 <div class="form-row {% if form.custom_action.errors %}errors{% endif %}">
@@ -45,7 +44,6 @@
                     </div>
                 </div>
             </fieldset>
-            {% endif %}
             {% if fileobject.filetype == "Folder" %}
             <fieldset class="module aligned">
                 <h2>{% trans "Folder Information" %}</h2>

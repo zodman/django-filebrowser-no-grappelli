@@ -530,6 +530,11 @@ class FileObject():
             for m in VERSIONS[version_suffix]['methods']:
                 if callable(m):
                     version = m(version)
+
+        # IF need Convert RGB
+        if version.mode not in ("L", "RGB"):
+            version = version.convert("RGB")
+
         # save version
         try:
             version.save(tmpfile, format=Image.EXTENSION[ext.lower()], quality=VERSION_QUALITY, optimize=(os.path.splitext(version_path)[1] != '.gif'))

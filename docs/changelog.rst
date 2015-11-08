@@ -8,11 +8,21 @@
 Changelog
 =========
 
-3.5.8 (not yet released)
+3.5.9 (not yet released)
 ------------------------
+
+3.5.8 (November 8th 2015)
+--------------------------
 
 * New: Sort by multiple attributes.
 * Improved: Add back button from upload page.
+* Improved: Show url after upload
+* Improved: Update video extensions for common HTML5 video types.
+* Improved: Improved Python 3 compatibility.
+* Improved: Version size with crop.
+* Improved: Fix cannot write mode P as JPEG.
+* Fixed: Action pulldown with all documents (not only images).
+* Fixed: Version scaling with fixed width and auto height (added tests as well).
 * Fixed: Compatibility with Django 1.4.
 * Fixed: Management command when generating all versions (fb_version_generate).
 * Fixed: Home link with breadcrumbs.
