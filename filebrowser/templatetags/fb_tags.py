@@ -1,6 +1,7 @@
 # coding: utf-8
 
 # DJANGO IMPORTS
+from django import VERSION as DJANGO_VERSION
 from django import template
 from django.utils.http import urlquote
 
@@ -163,3 +164,7 @@ except ImportError:
     pass
 else:
     register.tag(cycle)
+
+if DJANGO_VERSION < (1, 5):
+    from django.templatetags.future import url
+    register.tag(url)
