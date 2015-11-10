@@ -1,15 +1,16 @@
 import os
 from setuptools import setup, find_packages
 
+
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
     name='django-filebrowser-no-grappelli',
-    version='3.5.8',
+    version='3.6.1',
     description='Media-Management no Grappelli',
-    long_description = read('README.rst'),
-    url = 'https://github.com/smacker/django-filebrowser-no-grappelli',
+    long_description=read('README.rst'),
+    url='https://github.com/smacker/django-filebrowser-no-grappelli',
     download_url='',
     author='Patrick Kranzlmueller, Axel Swoboda (vonautomatisch)',
     author_email='office@vonautomatisch.at',
@@ -34,5 +35,5 @@ setup(
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
     ],
-    zip_safe = False
+    zip_safe=False,
 )

@@ -28,28 +28,19 @@ except ImportError:
     from django.utils.encoding import smart_unicode as smart_text
 
 # FILEBROWSER IMPORTS
-from filebrowser.settings import STRICT_PIL, DIRECTORY, EXTENSIONS, SELECT_FORMATS, ADMIN_VERSIONS, ADMIN_THUMBNAIL, MAX_UPLOAD_SIZE,\
-    NORMALIZE_FILENAME, CONVERT_FILENAME, SEARCH_TRAVERSE, EXCLUDE, VERSIONS, EXTENSION_LIST, DEFAULT_SORTING_BY, DEFAULT_SORTING_ORDER,\
-    LIST_PER_PAGE, OVERWRITE_EXISTING, DEFAULT_PERMISSIONS
+from filebrowser.settings import DIRECTORY, EXTENSIONS, SELECT_FORMATS, ADMIN_VERSIONS, ADMIN_THUMBNAIL, MAX_UPLOAD_SIZE,\
+    NORMALIZE_FILENAME, CONVERT_FILENAME, SEARCH_TRAVERSE, EXCLUDE, VERSIONS, VERSIONS_BASEDIR, EXTENSION_LIST, DEFAULT_SORTING_BY, DEFAULT_SORTING_ORDER,\
+    LIST_PER_PAGE, OVERWRITE_EXISTING, DEFAULT_PERMISSIONS, UPLOAD_TEMPDIR
 from filebrowser.templatetags.fb_tags import query_helper
 from filebrowser.base import FileListing, FileObject
 from filebrowser.decorators import path_exists, file_exists
-from filebrowser.storage import FileSystemStorageMixin, StorageMixin
+from filebrowser.storage import FileSystemStorageMixin
 from filebrowser.utils import convert_filename
 from filebrowser import signals
 
 # Add some required methods to FileSystemStorage
 if FileSystemStorageMixin not in FileSystemStorage.__bases__:
     FileSystemStorage.__bases__ += (FileSystemStorageMixin,)
-
-# PIL import
-if STRICT_PIL:
-    from PIL import Image
-else:
-    try:
-        from PIL import Image
-    except ImportError:
-        import Image
 
 # JSON import
 try:
@@ -66,7 +57,7 @@ def get_site_dict(app_name='filebrowser'):
     Return a dict with all *deployed* FileBrowser sites that have
     a given app_name.
     """
-    if not app_name in _sites_cache:
+    if app_name not in _sites_cache:
         return {}
     # Get names of all deployed filebrowser sites with a give app_name
     deployed = get_resolver(get_urlconf()).app_dict[app_name]
@@ -78,7 +69,7 @@ def register_site(app_name, site_name, site):
     """
     Add a site into the site dict.
     """
-    if not app_name in _sites_cache:
+    if app_name not in _sites_cache:
         _sites_cache[app_name] = {}
     _sites_cache[app_name][site_name] = site
 
@@ -94,7 +85,7 @@ def get_default_site(app_name='filebrowser'):
 
     # Django's default name resolution method (see django.core.urlresolvers.reverse())
     app_list = resolver.app_dict[app_name]
-    if not name in app_list:
+    if name not in app_list:
         name = app_list[0]
 
     return get_site_dict()[name]
@@ -125,11 +116,11 @@ def get_filterdate(filter_date, date_time):
     date_day = strftime("%d", gmtime(date_time))
     if filter_date == 'today' and int(date_year) == int(localtime()[0]) and int(date_month) == int(localtime()[1]) and int(date_day) == int(localtime()[2]):
         returnvalue = 'true'
-    elif filter_date == 'thismonth' and date_time >= time()-2592000:
+    elif filter_date == 'thismonth' and date_time >= time() - 2592000:
         returnvalue = 'true'
     elif filter_date == 'thisyear' and int(date_year) == int(localtime()[0]):
         returnvalue = 'true'
-    elif filter_date == 'past7days' and date_time >= time()-604800:
+    elif filter_date == 'past7days' and date_time >= time() - 604800:
         returnvalue = 'true'
     elif filter_date == '':
         returnvalue = 'true'
@@ -210,11 +201,7 @@ class FileBrowserSite(object):
 
     def get_urls(self):
         "URLs for a filebrowser.site"
-        try:
-            from django.conf.urls import url, patterns
-        except ImportError:
-            # for Django version less then 1.4
-            from django.conf.urls.defaults import url, patterns
+        from django.conf.urls import url, patterns
 
         # filebrowser urls (views)
         urlpatterns = patterns(
@@ -287,9 +274,12 @@ class FileBrowserSite(object):
         filter_re = []
         for exp in EXCLUDE:
             filter_re.append(re.compile(exp))
-        for k, v in VERSIONS.items():
-            exp = (r'_%s(%s)$') % (k, '|'.join(EXTENSION_LIST))
-            filter_re.append(re.compile(exp, re.IGNORECASE))
+
+        # do not filter if VERSIONS_BASEDIR is being used
+        if not VERSIONS_BASEDIR:
+            for k, v in VERSIONS.items():
+                exp = (r'_%s(%s)$') % (k, '|'.join(EXTENSION_LIST))
+                filter_re.append(re.compile(exp, re.IGNORECASE))
 
         def filter_browse(item):
             "Defining a browse filter"
@@ -498,7 +488,7 @@ class FileBrowserSite(object):
                     if isinstance(action_response, HttpResponse):
                         return action_response
                     if "_continue" in request.POST:
-                        redirect_url = reverse("filebrowser:fb_detail", current_app=self.name) + query_helper(query, "filename="+new_name, "filename")
+                        redirect_url = reverse("filebrowser:fb_detail", current_app=self.name) + query_helper(query, "filename=" + new_name, "filename")
                     else:
                         redirect_url = reverse("filebrowser:fb_browse", current_app=self.name) + query_helper(query, "", "filename")
                     return HttpResponseRedirect(redirect_url)
@@ -538,9 +528,14 @@ class FileBrowserSite(object):
     def _upload_file(self, request):
         """
         Upload file to the server.
+
+        If temporary is true, we upload to UPLOAD_TEMP_DIR, otherwise
+        we upload to site.directory
         """
         if request.method == "POST":
             folder = request.GET.get('folder', '')
+            temporary = request.GET.get('temporary', '')
+            temp_filename = None
 
             if len(request.FILES) == 0:
                 return HttpResponseBadRequest('Invalid request! No files included.')
@@ -552,13 +547,23 @@ class FileBrowserSite(object):
             fb_uploadurl_re = re.compile(r'^.*(%s)' % reverse("filebrowser:fb_upload", current_app=self.name))
             folder = fb_uploadurl_re.sub('', folder)
 
-            path = os.path.join(self.directory, folder)
+            # temporary upload folder should be outside self.directory
+            if folder == UPLOAD_TEMPDIR and temporary == "true":
+                path = folder
+            else:
+                path = os.path.join(self.directory, folder)
             # we convert the filename before uploading in order
             # to check for existing files/folders
             file_name = convert_filename(filedata.name)
             filedata.name = file_name
             file_path = os.path.join(path, file_name)
             file_already_exists = self.storage.exists(file_path)
+
+            # construct temporary filename by adding the upload folder, because
+            # otherwise we don't have any clue if the file has temporary been
+            # uploaded or not
+            if folder == UPLOAD_TEMPDIR and temporary == "true":
+                temp_filename = os.path.join(folder, file_name)
 
             # Check for name collision with a directory
             if file_already_exists and self.storage.isdir(file_path):
@@ -589,7 +594,8 @@ class FileBrowserSite(object):
             ret_json = {
                 'success': True,
                 'filename': f.filename,
-                'url': f.url
+                'temp_filename': temp_filename,
+                'url': f.url,
             }
             return HttpResponse(json.dumps(ret_json), content_type="application/json")
 

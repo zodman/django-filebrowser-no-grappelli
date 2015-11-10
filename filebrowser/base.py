@@ -14,7 +14,7 @@ from django.core.files import File
 from django.utils.six import string_types
 
 # FILEBROWSER IMPORTS
-from filebrowser.settings import EXTENSIONS, VERSIONS, ADMIN_VERSIONS, VERSIONS_BASEDIR, VERSION_QUALITY, PLACEHOLDER, FORCE_PLACEHOLDER, SHOW_PLACEHOLDER, STRICT_PIL, IMAGE_MAXBLOCK, DEFAULT_PERMISSIONS
+from filebrowser.settings import EXTENSIONS, VERSIONS, ADMIN_VERSIONS, VERSIONS_BASEDIR, VERSION_QUALITY, PLACEHOLDER, FORCE_PLACEHOLDER, SHOW_PLACEHOLDER, STRICT_PIL, IMAGE_MAXBLOCK, DEFAULT_PERMISSIONS, UPLOAD_TEMPDIR
 from filebrowser.utils import path_strip, scale_and_crop
 from django.utils.encoding import python_2_unicode_compatible, smart_str
 
@@ -434,6 +434,8 @@ class FileObject():
     @property
     def is_version(self):
         "True if file is a version, false otherwise"
+        # FIXME: with 3.7, check for VERSIONS_BASEDIR as well in order to make sure
+        # it is actually a version (do not rely on the file ending only).
         tmp = self.filename_root.split("_")
         if tmp[len(tmp) - 1] in VERSIONS:
             return True

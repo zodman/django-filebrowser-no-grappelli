@@ -8,8 +8,13 @@
 Changelog
 =========
 
-3.5.9 (not yet released)
+3.6.2 (not yet released)
 ------------------------
+
+3.6.1 (November 11th, 2015)
+---------------------------
+
+* Compatibility with Django 1.8
 
 3.5.8 (November 8th 2015)
 --------------------------
@@ -150,4 +155,4 @@ Changelog
 3.4.0 (15/11/2011)
 ------------------
 
-* Final release of 3.4, see :ref:`releasenotes`
+For further information, see :ref:`releasenotes`.

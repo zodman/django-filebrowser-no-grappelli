@@ -20,6 +20,8 @@
     <ul>
         <li{% if not query.filter_type %} class="selected"{% endif %}>
         <a href="{% query_string "" "filter_type,p" %}">{% trans "All" %}</a></li>
+        <li{% if query.filter_type == 'Folder' %} class="selected"{% endif %}>
+        <a href="{% query_string "" "filter_type,p" %}&amp;filter_type=Folder">{% trans "Folder" %}</a></li>
         {% for extension in settings_var.EXTENSIONS %}
         <li{% if query.filter_type == extension %} class="selected"{% endif %}>
         <a href="{% query_string "" "filter_type,p" %}&amp;filter_type={{ extension }}">{% trans extension %}</a></li>
