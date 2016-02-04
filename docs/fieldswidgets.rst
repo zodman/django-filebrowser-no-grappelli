@@ -69,6 +69,8 @@ Using the FileBrowseField with TinyMCE
 
 In order to replace the TinyMCE image/file manager with the FileBrowser, you have to use a `FileBrowser Callback <http://www.tinymce.com/wiki.php/Configuration:file_browser_callback>`_. There's an example TinyMCE configuration file in /static/js/ called TinyMCEAdmin.js. You can either copy the FileBrowserCallback to your own file or just use tinymce_setup.js (which comes with django-grappelli).
 
+See TinyMCEv4Admin.js for an example of how to use the FileBrowser with TinyMCE v4.
+
 Just add these lines to your `ModelAdmin asset definitions <https://docs.djangoproject.com/en/1.8/ref/contrib/admin/#modeladmin-asset-definitions>`_:
 
 .. code-block:: python
