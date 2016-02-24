@@ -16,9 +16,12 @@ class FilebrowserTestCase(TestCase):
     def setUpClass(cls):
         super(FilebrowserTestCase, cls).setUpClass()
 
-        cls.user = User.objects.create_user('testuser', 'test@domain.com', 'password')
-        cls.user.is_staff = True
-        cls.user.save()
+        if not User.objects.filter(username='testuser').count():
+            cls.user = User.objects.create_user('testuser', 'test@domain.com', 'password')
+            cls.user.is_staff = True
+            cls.user.save()
+        else:
+            cls.user = User.objects.get(username='testuser')
 
     def setUp(self):
         self.DIRECTORY = DIRECTORY
