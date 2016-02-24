@@ -14,7 +14,7 @@ from mock import patch
 from filebrowser.settings import VERSIONS, DEFAULT_PERMISSIONS
 from filebrowser.base import FileObject
 from filebrowser.sites import site
-from tests import FilebrowserTestCase as TestCase
+from tests.base import FilebrowserTestCase as TestCase
 
 
 class BrowseViewTests(TestCase):

@@ -5,7 +5,7 @@ import sys
 if __name__ == "__main__":
     os.environ['DJANGO_SETTINGS_MODULE'] = 'tests.settings'
 
-    # Django 1.8
+    # Django >=1.8
     import django
     if getattr(django, 'setup', False):
         django.setup()

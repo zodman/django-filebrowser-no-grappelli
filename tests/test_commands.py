@@ -9,7 +9,7 @@ from django.core.management import call_command
 from django.utils.six import StringIO
 
 from filebrowser.settings import DIRECTORY
-from tests import FilebrowserTestCase as TestCase
+from tests.base import FilebrowserTestCase as TestCase
 
 
 class VersionGenerateCommandTests(TestCase):

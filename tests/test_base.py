@@ -10,7 +10,7 @@ from mock import patch
 from filebrowser.base import FileObject, FileListing
 from filebrowser.sites import site
 from filebrowser.settings import VERSIONS
-from tests import FilebrowserTestCase as TestCase
+from tests.base import FilebrowserTestCase as TestCase
 
 
 class FileObjectPathTests(TestCase):

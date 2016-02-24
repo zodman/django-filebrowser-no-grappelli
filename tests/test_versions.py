@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template import Context, Template, TemplateSyntaxError
 from mock import patch
 
-from tests import FilebrowserTestCase as TestCase
+from tests.base import FilebrowserTestCase as TestCase
 from filebrowser.settings import STRICT_PIL
 from filebrowser.utils import scale_and_crop
 
