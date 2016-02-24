@@ -7,6 +7,7 @@ from time import gmtime, strftime, localtime, time
 from django import VERSION as DJANGO_VERSION
 from django import forms
 from django.contrib import messages
+from django.contrib.admin.sites import site as admin_site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.files.storage import DefaultStorage, default_storage, FileSystemStorage
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -16,6 +17,7 @@ from django.shortcuts import render_to_response, HttpResponse
 from django.template import RequestContext as Context
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import never_cache
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
 try:
     from django.utils.encoding import smart_text
