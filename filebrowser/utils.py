@@ -1,18 +1,14 @@
 # coding: utf-8
 
-# PYTHON IMPORTS
 import re
 import os
 import unicodedata
 import math
 
-# DJANGO IMPORTS
 from django.utils import six
 
-# FILEBROWSER IMPORTS
 from filebrowser.settings import STRICT_PIL, NORMALIZE_FILENAME, CONVERT_FILENAME
 
-# PIL import
 if STRICT_PIL:
     from PIL import Image
 else:
@@ -62,9 +58,11 @@ def scale_and_crop(im, width, height, opts):
     """
 
     x, y = [float(v) for v in im.size]
+    width = float(width or 0)
+    height = float(height or 0)
 
     if 'upscale' not in opts:
-        if (x < width or not x) and (y < height or not y):
+        if (x < width or not width) and (y < height or not height):
             return False
 
     if width:

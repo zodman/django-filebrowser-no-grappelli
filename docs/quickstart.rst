@@ -63,15 +63,6 @@ Check the :ref:`settings`.
 Testing
 -------
 
-Run the |filebrowser| tests:
-
-.. code-block:: console
-
-    python manage.py test filebrowser
-
-.. warning::
-    Please note that the tests will copy files to your filesystem.
-
 Start the devserver and login to your admin site:
 
 .. code-block:: console

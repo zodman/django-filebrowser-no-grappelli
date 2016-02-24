@@ -11,7 +11,11 @@ Changelog
 3.6.2 (not yet released)
 ------------------------
 
-3.6.1 (November 11th, 2015)
+* New: Better test coverage with tox.
+* New: Added Travis CI.
+* New: Improved tests.
+
+3.6.1 (September 9th, 2015)
 ---------------------------
 
 * Compatibility with Django 1.8
