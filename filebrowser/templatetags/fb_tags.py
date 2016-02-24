@@ -2,8 +2,10 @@
 
 from django import VERSION as DJANGO_VERSION
 from django import template
+from django.contrib.admin.templatetags.admin_static import static
 from django.template import TemplateSyntaxError
 from django.utils.http import urlquote
+from django.utils.safestring import mark_safe
 
 from filebrowser.settings import EXTENSIONS, SELECT_FORMATS
 
@@ -153,9 +155,27 @@ def get_file_extensions(qs):
             for item in v:
                 if item:
                     extensions.append(item)
-    return extensions
+    return mark_safe(extensions)
 
 register.simple_tag(get_file_extensions)
+
+
+def static_jquery():
+    if DJANGO_VERSION < (1, 9):
+        return static("admin/js/jquery.min.js")
+
+    return static("admin/js/vendor/jquery/jquery.min.js")
+
+register.simple_tag(static_jquery)
+
+
+def static_search_icon():
+    if DJANGO_VERSION < (1, 9):
+        return static("admin/img/icon_searchbox.png")
+
+    return static("admin/img/search.svg")
+
+register.simple_tag(static_search_icon)
 
 
 try:  # Import cycle from future for django 1.7+
