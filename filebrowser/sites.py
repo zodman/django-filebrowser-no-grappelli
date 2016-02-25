@@ -4,10 +4,8 @@ import os
 import re
 from time import gmtime, strftime, localtime, time
 
-from django import VERSION as DJANGO_VERSION
 from django import forms
 from django.contrib import messages
-from django.contrib.admin.sites import site as admin_site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.core.files.storage import DefaultStorage, default_storage, FileSystemStorage
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -19,10 +17,6 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
-try:
-    from django.utils.encoding import smart_text
-except ImportError:
-    from django.utils.encoding import smart_unicode as smart_text
 
 from filebrowser import signals
 from filebrowser.base import FileListing, FileObject
@@ -34,10 +28,7 @@ from filebrowser.settings import (DIRECTORY, EXTENSIONS, SELECT_FORMATS, ADMIN_V
                                   CONVERT_FILENAME, SEARCH_TRAVERSE, EXCLUDE, VERSIONS, VERSIONS_BASEDIR, EXTENSION_LIST, DEFAULT_SORTING_BY, DEFAULT_SORTING_ORDER,
                                   LIST_PER_PAGE, OVERWRITE_EXISTING, DEFAULT_PERMISSIONS, UPLOAD_TEMPDIR)
 
-try:
-    import json
-except ImportError:
-    from django.utils import simplejson as json
+from .compat import admin_context, json, smart_text
 
 
 # Add some required methods to FileSystemStorage
@@ -186,13 +177,6 @@ class FileBrowserSite(object):
         # Per-site settings:
         self.directory = DIRECTORY
 
-    def _add_each_context(self, context, request):
-        # Django >= 1.8 needs has_permission in context
-        if DJANGO_VERSION > (1, 8):
-            return dict(admin_site.each_context(request), **context)
-
-        return context
-
     def _directory_get(self):
         "Set directory"
         return self._directory
@@ -205,7 +189,8 @@ class FileBrowserSite(object):
 
     def get_urls(self):
         "URLs for a filebrowser.site"
-        from django.conf.urls import url, patterns
+        from django.conf.urls import url
+        from .compat import patterns
 
         # filebrowser urls (views)
         urlpatterns = patterns(
@@ -341,7 +326,7 @@ class FileBrowserSite(object):
         except (EmptyPage, InvalidPage):
             page = p.page(p.num_pages)
 
-        return render_to_response('filebrowser/index.html', self._add_each_context({
+        return render_to_response('filebrowser/index.html', admin_context({
             'p': p,
             'page': page,
             'filelisting': filelisting,
@@ -380,7 +365,7 @@ class FileBrowserSite(object):
         else:
             form = CreateDirForm(path, filebrowser_site=self)
 
-        return render_to_response('filebrowser/createdir.html', self._add_each_context({
+        return render_to_response('filebrowser/createdir.html', admin_context({
             'form': form,
             'query': query,
             'title': _(u'New Folder'),
@@ -395,7 +380,7 @@ class FileBrowserSite(object):
         "Multipe File Upload."
         query = request.GET
 
-        return render_to_response('filebrowser/upload.html', self._add_each_context({
+        return render_to_response('filebrowser/upload.html', admin_context({
             'query': query,
             'title': _(u'Select files to upload'),
             'is_popup': "pop" in request.GET,
@@ -426,7 +411,7 @@ class FileBrowserSite(object):
             filelisting = None
             additional_files = None
 
-        return render_to_response('filebrowser/delete_confirm.html', self._add_each_context({
+        return render_to_response('filebrowser/delete_confirm.html', admin_context({
             'fileobject': fileobject,
             'filelisting': filelisting,
             'additional_files': additional_files,
@@ -501,7 +486,7 @@ class FileBrowserSite(object):
         else:
             form = ChangeForm(initial={"name": fileobject.filename}, path=path, fileobject=fileobject, filebrowser_site=self)
 
-        return render_to_response('filebrowser/detail.html', self._add_each_context({
+        return render_to_response('filebrowser/detail.html', admin_context({
             'form': form,
             'fileobject': fileobject,
             'query': query,
@@ -522,7 +507,7 @@ class FileBrowserSite(object):
         path = u'%s' % os.path.join(self.directory, query.get('dir', ''))
         fileobject = FileObject(os.path.join(path, query.get('filename', '')), site=self)
 
-        return render_to_response('filebrowser/version.html', self._add_each_context({
+        return render_to_response('filebrowser/version.html', admin_context({
             'fileobject': fileobject,
             'query': query,
             'settings_var': get_settings_var(directory=self.directory),

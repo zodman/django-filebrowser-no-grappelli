@@ -158,33 +158,3 @@ def get_file_extensions(qs):
     return mark_safe(extensions)
 
 register.simple_tag(get_file_extensions)
-
-
-def static_jquery():
-    if DJANGO_VERSION < (1, 9):
-        return static("admin/js/jquery.min.js")
-
-    return static("admin/js/vendor/jquery/jquery.min.js")
-
-register.simple_tag(static_jquery)
-
-
-def static_search_icon():
-    if DJANGO_VERSION < (1, 9):
-        return static("admin/img/icon_searchbox.png")
-
-    return static("admin/img/search.svg")
-
-register.simple_tag(static_search_icon)
-
-
-try:  # Import cycle from future for django 1.7+
-    from django.templatetags.future import cycle
-except ImportError:
-    pass
-else:
-    register.tag(cycle)
-
-if DJANGO_VERSION < (1, 5):
-    from django.templatetags.future import url
-    register.tag(url)
