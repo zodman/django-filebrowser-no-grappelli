@@ -11,9 +11,13 @@ Changelog
 3.6.2 (not yet released)
 ------------------------
 
+* New: Compatibility with Django 1.9
 * New: Better test coverage with tox.
-* New: Added Travis CI.
 * New: Improved tests.
+* New: Add support for using filebrowser from tiny-mce v4
+* Fixed: The block usertools not displayed on django 1.8
+* Fixed: Fix url tag for django 1.4
+* Fixed: Django styles for experimental FileBrowseUploadField
 
 3.6.1 (September 9th, 2015)
 ---------------------------
