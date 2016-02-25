@@ -14,7 +14,7 @@ Requirements
 
 FileBrowser 3.6 requires
 
-* Django 1.4/1.5/1.6/1.7/1.8 (http://www.djangoproject.com)
+* Django 1.4/1.5/1.6/1.7/1.8/1.9 (http://www.djangoproject.com)
 * Pillow (https://github.com/python-imaging/Pillow)
 
 No Grappelli
