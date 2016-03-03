@@ -97,6 +97,10 @@
 <!-- CONTENT -->
 {% block content %}
 <div id="content-main">
+    <!-- POP-UP BREADCRUMBS -->
+    {% if query.pop %}
+        {% include "filebrowser/include/breadcrumbs.html" %}
+    {% endif %}
     <form>
         <div>
             <fieldset class="module aligned">
