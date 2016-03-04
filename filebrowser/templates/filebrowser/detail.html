@@ -36,6 +36,10 @@
 <!-- CONTENT -->
 {% block content %}
 <div id="content-main">
+    <!-- POP-UP BREADCRUMBS -->
+    {% if query.pop %}
+        {% include "filebrowser/include/breadcrumbs.html" %}
+    {% endif %}
     <form action="{% query_string "" "filter_date,filter_type,q,p" %}" method="post">{% csrf_token %}
         <div>
             {% if form.errors %}<p class="errornote">{% trans 'Please correct the following errors.' %}</p>{% endif %}

@@ -74,6 +74,11 @@
 <!-- CONTENT -->
 {% block content %}
     <div id="content-main">
+        <!-- POP-UP BREADCRUMBS -->
+        {% if query.pop %}
+            {% include "filebrowser/include/breadcrumbs.html" %}
+        {% endif %}
+
         <!-- OBJECT-TOOLS -->
         {% block object-tools %}
             <ul class="object-tools">
