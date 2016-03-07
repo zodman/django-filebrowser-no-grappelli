@@ -8,8 +8,11 @@
 Changelog
 =========
 
-3.6.2 (not yet released)
+3.6.3 (not yet released)
 ------------------------
+
+3.6.2 (March 7th, 2016)
+-----------------------
 
 * New: Compatibility with Django 1.9
 * New: Better test coverage with tox.
@@ -19,6 +22,9 @@ Changelog
 * Fixed: The block usertools not displayed on django 1.8
 * Fixed: Fix url tag for django 1.4
 * Fixed: Django styles for experimental FileBrowseUploadField
+* Fixed: Scale and crop with images which are either too wide or tall.
+* Improved: Renamed test image in order to fix an issue with S3 and collectstatic.
+
 
 3.6.1 (September 9th, 2015)
 ---------------------------
