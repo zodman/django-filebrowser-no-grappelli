@@ -15,6 +15,7 @@ Changelog
 * New: Better test coverage with tox.
 * New: Improved tests.
 * New: Add support for using filebrowser from tiny-mce v4
+* New: Breadcrumbs on pop-ups
 * Fixed: The block usertools not displayed on django 1.8
 * Fixed: Fix url tag for django 1.4
 * Fixed: Django styles for experimental FileBrowseUploadField
