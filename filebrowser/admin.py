@@ -4,7 +4,6 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from .models import FileBrowser
 from .settings import SHOW_IN_DASHBOARD
-from .compat import patterns
 
 
 class FileBrowserAdmin(admin.ModelAdmin):
@@ -19,9 +18,9 @@ class FileBrowserAdmin(admin.ModelAdmin):
     def get_urls(self):
         opts = self.model._meta
         info = opts.app_label, (opts.model_name if hasattr(opts, 'model_name') else opts.module_name)
-        return patterns('',
+        return [
             url('^$', self.admin_site.admin_view(self.filebrowser_view), name='{0}_{1}_changelist'.format(*info)),
-        )
+        ]
 
     def filebrowser_view(self, request):
         return HttpResponseRedirect(reverse('filebrowser:fb_browse'))

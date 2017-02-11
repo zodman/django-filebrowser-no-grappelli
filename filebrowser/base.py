@@ -6,14 +6,15 @@ import os
 import platform
 import tempfile
 import time
-import warnings
 
 from django.core.files import File
-from django.utils.encoding import python_2_unicode_compatible, smart_str
+from django.utils.encoding import python_2_unicode_compatible, force_text
 from django.utils.six import string_types
+from django.utils.functional import cached_property
 
 from filebrowser.settings import EXTENSIONS, VERSIONS, ADMIN_VERSIONS, VERSIONS_BASEDIR, VERSION_QUALITY, STRICT_PIL, IMAGE_MAXBLOCK, DEFAULT_PERMISSIONS
-from filebrowser.utils import path_strip, scale_and_crop
+from filebrowser.utils import path_strip, process_image
+from .namers import get_namer
 
 if STRICT_PIL:
     from PIL import Image
@@ -81,12 +82,9 @@ class FileListing():
             attr = (attr, )
         return sorted(seq, key=attrgetter(*attr))
 
-    _is_folder_stored = None
-    @property
+    @cached_property
     def is_folder(self):
-        if self._is_folder_stored is None:
-            self._is_folder_stored = self.site.storage.isdir(self.path)
-        return self._is_folder_stored
+        return self.site.storage.isdir(self.path)
 
     def listing(self):
         "List all files for path"
@@ -227,7 +225,7 @@ class FileObject():
         self.mimetype = mimetypes.guess_type(self.filename)
 
     def __str__(self):
-        return smart_str(self.path)
+        return force_text(self.path)
 
     @property
     def name(self):
@@ -258,38 +256,21 @@ class FileObject():
     # datetime
     # exists
 
-    _filetype_stored = None
-    @property
+    @cached_property
     def filetype(self):
         "Filetype as defined with EXTENSIONS"
-        if self._filetype_stored is not None:
-            return self._filetype_stored
-        if self.is_folder:
-            self._filetype_stored = 'Folder'
-        else:
-            self._filetype_stored = self._get_file_type()
-        return self._filetype_stored
+        return 'Folder' if self.is_folder else self._get_file_type()
 
-    _filesize_stored = None
-    @property
+    @cached_property
     def filesize(self):
         "Filesize in bytes"
-        if self._filesize_stored is not None:
-            return self._filesize_stored
-        if self.exists:
-            self._filesize_stored = self.site.storage.size(self.path)
-            return self._filesize_stored
-        return None
+        return self.site.storage.size(self.path) if self.exists else None
 
-    _date_stored = None
-    @property
+    @cached_property
     def date(self):
         "Modified time (from site.storage) as float (mktime)"
-        if self._date_stored is not None:
-            return self._date_stored
         if self.exists:
-            self._date_stored = time.mktime(self.site.storage.modified_time(self.path).timetuple())
-            return self._date_stored
+            return time.mktime(self.site.storage.modified_time(self.path).timetuple())
         return None
 
     @property
@@ -299,13 +280,10 @@ class FileObject():
             return datetime.datetime.fromtimestamp(self.date)
         return None
 
-    _exists_stored = None
-    @property
+    @cached_property
     def exists(self):
         "True, if the path exists, False otherwise"
-        if self._exists_stored is None:
-            self._exists_stored = self.site.storage.exists(self.path)
-        return self._exists_stored
+        return self.site.storage.exists(self.path)
 
     # PATH/URL ATTRIBUTES/PROPERTIES
     # path (see init)
@@ -341,20 +319,16 @@ class FileObject():
     # aspectratio
     # orientation
 
-    _dimensions_stored = None
-    @property
+    @cached_property
     def dimensions(self):
         "Image dimensions as a tuple"
         if self.filetype != 'Image':
             return None
-        if self._dimensions_stored is not None:
-            return self._dimensions_stored
         try:
             im = Image.open(self.site.storage.open(self.path))
-            self._dimensions_stored = im.size
+            return im.size
         except:
             pass
-        return self._dimensions_stored
 
     @property
     def width(self):
@@ -388,30 +362,13 @@ class FileObject():
         return None
 
     # FOLDER ATTRIBUTES/PROPERTIES
-    # directory (deprecated)
-    # folder (deprecated)
     # is_folder
     # is_empty
 
-    @property
-    def directory(self):
-        "Folder(s) relative from site.directory"
-        warnings.warn("directory will be removed with 3.6, use path_relative_directory instead.", DeprecationWarning)
-        return path_strip(self.path, self.site.directory)
-
-    @property
-    def folder(self):
-        "Parent folder(s)"
-        warnings.warn("directory will be removed with 3.6, use dirname instead.", DeprecationWarning)
-        return os.path.dirname(path_strip(os.path.join(self.head, ''), self.site.directory))
-
-    _is_folder_stored = None
-    @property
+    @cached_property
     def is_folder(self):
         "True, if path is a folder"
-        if self._is_folder_stored is None:
-            self._is_folder_stored = self.site.storage.isdir(self.path)
-        return self._is_folder_stored
+        return self.site.storage.isdir(self.path)
 
     @property
     def is_empty(self):
@@ -431,12 +388,7 @@ class FileObject():
     @property
     def is_version(self):
         "True if file is a version, false otherwise"
-        # FIXME: with 3.7, check for VERSIONS_BASEDIR as well in order to make sure
-        # it is actually a version (do not rely on the file ending only).
-        tmp = self.filename_root.split("_")
-        if tmp[len(tmp) - 1] in VERSIONS:
-            return True
-        return False
+        return self.head.startswith(VERSIONS_BASEDIR)
 
     @property
     def versions_basedir(self):
@@ -459,10 +411,13 @@ class FileObject():
     @property
     def original_filename(self):
         "Get the filename of an original image from a version"
-        tmp = self.filename_root.split("_")
-        if tmp[len(tmp) - 1] in VERSIONS:
-            return u"%s%s" % (self.filename_root.replace("_%s" % tmp[len(tmp) - 1], ""), self.extension)
-        return self.filename
+        if not self.is_version:
+            return self.filename
+        return get_namer(
+            file_object=self,
+            filename_root=self.filename_root,
+            extension=self.extension,
+        ).get_original_name()
 
     # VERSION METHODS
     # versions()
@@ -470,6 +425,16 @@ class FileObject():
     # version_name(suffix)
     # version_path(suffix)
     # version_generate(suffix)
+
+    def _get_options(self, version_suffix, extra_options=None):
+        options = dict(VERSIONS.get(version_suffix, {}))
+        if extra_options:
+            options.update(extra_options)
+        if 'size' in options and 'width' not in options:
+            width, height = options['size']
+            options['width'] = width
+            options['height'] = height
+        return options
 
     def versions(self):
         "List of versions (not checking if they actually exist)"
@@ -487,25 +452,37 @@ class FileObject():
                 version_list.append(os.path.join(self.versions_basedir, self.dirname, self.version_name(version)))
         return version_list
 
-    def version_name(self, version_suffix):
+    def version_name(self, version_suffix, extra_options=None):
         "Name of a version"  # FIXME: version_name for version?
-        return self.filename_root + "_" + version_suffix + self.extension
+        options = self._get_options(version_suffix, extra_options)
+        return get_namer(
+            file_object=self,
+            version_suffix=version_suffix,
+            filename_root=self.filename_root,
+            extension=self.extension,
+            options=options,
+        ).get_version_name()
 
-    def version_path(self, version_suffix):
+    def version_path(self, version_suffix, extra_options=None):
         "Path to a version (relative to storage location)"  # FIXME: version_path for version?
-        return os.path.join(self.versions_basedir, self.dirname, self.version_name(version_suffix))
+        return os.path.join(
+            self.versions_basedir,
+            self.dirname,
+            self.version_name(version_suffix, extra_options))
 
-    def version_generate(self, version_suffix):
+    def version_generate(self, version_suffix, extra_options=None):
         "Generate a version"  # FIXME: version_generate for version?
         path = self.path
-        version_path = self.version_path(version_suffix)
+        options = self._get_options(version_suffix, extra_options)
+
+        version_path = self.version_path(version_suffix, extra_options)
         if not self.site.storage.isfile(version_path):
-            version_path = self._generate_version(version_suffix)
+            version_path = self._generate_version(version_path, options)
         elif self.site.storage.modified_time(path) > self.site.storage.modified_time(version_path):
-            version_path = self._generate_version(version_suffix)
+            version_path = self._generate_version(version_path, options)
         return FileObject(version_path, site=self.site)
 
-    def _generate_version(self, version_suffix):
+    def _generate_version(self, version_path, options):
         """
         Generate Version for an Image.
         value has to be a path relative to the storage location.
@@ -518,15 +495,13 @@ class FileObject():
         except IOError:
             return ""
         im = Image.open(f)
-        version_path = self.version_path(version_suffix)
         version_dir, version_basename = os.path.split(version_path)
         root, ext = os.path.splitext(version_basename)
-        version = scale_and_crop(im, VERSIONS[version_suffix]['width'], VERSIONS[version_suffix]['height'], VERSIONS[version_suffix]['opts'])
+        version = process_image(im, options)
         if not version:
             version = im
-        # version methods as defined with VERSIONS
-        if 'methods' in VERSIONS[version_suffix].keys():
-            for m in VERSIONS[version_suffix]['methods']:
+        if 'methods' in options:
+            for m in options['methods']:
                 if callable(m):
                     version = m(version)
 

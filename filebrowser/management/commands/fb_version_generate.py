@@ -20,17 +20,13 @@ for k, v in VERSIONS.items():
 
 
 class Command(BaseCommand):
-    args = '<media_path>'
     help = "(Re)Generate image versions."
 
-    def handle(self, *args, **options):
-        media_path = ""
+    def add_arguments(self, parser):
+        parser.add_argument('media_path', nargs='?', default=DIRECTORY)
 
-        if len(args):
-            media_path = args[0]
-            path = media_path
-        else:
-            path = DIRECTORY
+    def handle(self, *args, **options):
+        path = options['media_path']
 
         if not os.path.isdir(os.path.join(settings.MEDIA_ROOT, path)):
             raise CommandError('<media_path> must be a directory in MEDIA_ROOT (If you don\'t add a media_path the default path is DIRECTORY).\n"%s" is no directory.' % path)

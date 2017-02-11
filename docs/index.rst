@@ -11,7 +11,7 @@ Django FileBrowser Documentation
 **Media-Management with Grappelli**.
 
 .. note::
-    |filebrowser| 3.6.2 requires Django 1.8 and |grappelli| 2.7.
+    |filebrowser| 3.7.2 requires Django 1.9 and |grappelli| 2.8.
 
 Installation and Setup
 ----------------------
@@ -73,7 +73,6 @@ Main Features
 * Image versions to fit your websites grid (esp. useful with adaptive/responsive layouts).
 * Integration with TinyMCE.
 * FileBrowseField to select images/documents.
-* FileInput and ClearableFileInput with image preview.
 * Signals for upload, rename and delete.
 * Custom actions.
 * Custom file storage engines.
@@ -93,13 +92,15 @@ Versions and Compatibility
 
 **FileBrowser is always developed against the latest stable Django release and is NOT tested with Djangos trunk.**
 
-* FileBrowser 3.6.2 (March 6th, 2016): Compatible with Django 1.8
+* FileBrowser 3.7.2 (August 9th, 2016): Compatible with Django 1.9
+* FileBrowser 3.6.4 (March 6th, 2016): Compatible with Django 1.8
 * FileBrowser 3.5.8 (September 7th, 2015): Compatible with Django 1.4/1.5/1.6/1.7
 
 Current development branches:
 
-* FileBrowser 3.6.3 (Development Version for Django >= 1.8, see Branch Stable/3.6.x)
+* FileBrowser 3.7.3 (Development Version for Django = 1.9, see Branch Stable/3.7.x)
+* FileBrowser 3.6.5 (Development Version for Django = 1.8, see Branch Stable/3.6.x)
 * FileBrowser 3.5.9 (Development Version for Django <= 1.7, see Branch Stable/3.5.x)
 
 Older versions are available at GitHub, but are not supported anymore.
-Support for 3.5.x is limited to security issues and very important bugfixes.
+Support for 3.5.x and 3.6.x is limited to security issues and very important bugfixes.

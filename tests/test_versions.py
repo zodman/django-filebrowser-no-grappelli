@@ -8,7 +8,8 @@ from mock import patch
 
 from tests.base import FilebrowserTestCase as TestCase
 from filebrowser.settings import STRICT_PIL
-from filebrowser.utils import scale_and_crop
+from filebrowser import utils
+from filebrowser.utils import scale_and_crop, process_image
 
 if STRICT_PIL:
     from PIL import Image
@@ -19,12 +20,66 @@ else:
         import Image
 
 
+def processor_mark_1(im, **kwargs):
+    im.mark_1 = True
+    return im
+
+
+def processor_mark_2(im, **kwargs):
+    im.mark_2 = True
+    return im
+
+
+class ImageProcessorsTests(TestCase):
+    def setUp(self):
+        super(ImageProcessorsTests, self).setUp()
+        shutil.copy(self.STATIC_IMG_PATH, self.FOLDER_PATH)
+
+        utils._default_processors = None
+        self.im = Image.open(self.F_IMAGE.path_full)
+
+    def tearDown(self):
+        super(ImageProcessorsTests, self).tearDown()
+        utils._default_processors = None
+
+    def test_process_image_calls_scale_and_crop(self):
+        version = process_image(self.im, {'width': 500, 'height': ""})
+        self.assertEqual(version.size, (500, 375))
+
+    @patch('filebrowser.utils.VERSION_PROCESSORS', [
+        'tests.test_versions.processor_mark_1',
+        'tests.test_versions.processor_mark_2',
+    ])
+    def test_process_image_calls_the_stack_of_processors_in_settings(self):
+        version = process_image(self.im, {})
+        self.assertTrue(hasattr(version, 'mark_1'))
+        self.assertTrue(hasattr(version, 'mark_2'))
+
+    @patch('filebrowser.utils.VERSION_PROCESSORS', [
+        'tests.test_versions.processor_mark_1',
+    ])
+    def test_process_image_calls_only_explicit_provided_processors(self):
+        version = process_image(self.im, {}, processors=[processor_mark_2])
+        self.assertFalse(hasattr(version, 'mark_1'))
+        self.assertTrue(hasattr(version, 'mark_2'))
+
+
 class ScaleAndCropTests(TestCase):
     def setUp(self):
         super(ScaleAndCropTests, self).setUp()
         shutil.copy(self.STATIC_IMG_PATH, self.FOLDER_PATH)
 
         self.im = Image.open(self.F_IMAGE.path_full)
+
+    def test_do_not_scale(self):
+        version = scale_and_crop(self.im, "", "", "")
+        self.assertEqual(version.size, self.im.size)
+
+    def test_do_not_scale_if_desired_size_is_equal_to_original(self):
+        width, height = self.im.size
+        version = scale_and_crop(self.im, width, height, "")
+        self.assertIs(version, self.im)
+        self.assertEqual(version.size, (width, height))
 
     def test_scale_width(self):
         version = scale_and_crop(self.im, 500, "", "")
@@ -37,15 +92,15 @@ class ScaleAndCropTests(TestCase):
 
     def test_scale_no_upscale_too_wide(self):
         version = scale_and_crop(self.im, 1500, "", "")
-        self.assertEqual(version, False)
+        self.assertIs(version, self.im)
 
     def test_scale_no_upscale_too_tall(self):
         version = scale_and_crop(self.im, "", 1125, "")
-        self.assertEqual(version, False)
+        self.assertIs(version, self.im)
 
     def test_scale_no_upscale_too_wide_and_tall(self):
         version = scale_and_crop(self.im, 1500, 1125, "")
-        self.assertEqual(version, False)
+        self.assertIs(version, self.im)
 
     def test_scale_with_upscale_width(self):
         version = scale_and_crop(self.im, 1500, "", "upscale")
@@ -82,7 +137,7 @@ class ScaleAndCropTests(TestCase):
     def test_crop_width_and_height_too_large_no_upscale(self):
         # new width 1500 and height 1500 w. crop > false (upscale missing)
         version = scale_and_crop(self.im, 1500, 1500, "crop")
-        self.assertEqual(version, False)
+        self.assertIs(version, self.im)
 
     def test_crop_width_and_height_too_large_with_upscale(self):
         version = scale_and_crop(self.im, 1500, 1500, "crop,upscale")
@@ -296,11 +351,11 @@ class VersionAsTemplateTagTests(TestCase):
 
 
 class VersionObjectTemplateTagTests(TestCase):
-    """Test version_object uses
+    """Test version uses
 
     Eg:
-    {% version_object obj "large" as version_large %}
-    {% version_object path "large" as version_large %}
+    {% version obj "large" as version_large %}
+    {% version path "large" as version_large %}
 
     """
     def setUp(self):
@@ -311,33 +366,35 @@ class VersionObjectTemplateTagTests(TestCase):
         shutil.copy(self.STATIC_IMG_PATH, self.PLACEHOLDER_PATH)
 
     def test_wrong_token(self):
-        self.assertRaises(TemplateSyntaxError, lambda: Template('{% load fb_versions %}{% version_object obj.path %}'))
-        self.assertRaises(TemplateSyntaxError, lambda: Template('{% load fb_versions %}{% version_object %}'))
-        self.assertRaises(TemplateSyntaxError, lambda: Template('{% load fb_versions %}{% version_object obj.path "medium" %}'))
+        self.assertRaises(TemplateSyntaxError, lambda: Template('{% load fb_versions %}{% version obj.path %}'))
+        self.assertRaises(TemplateSyntaxError, lambda: Template('{% load fb_versions %}{% version %}'))
+        # next one does not raise an error anymore, because we use version instead of version_object
+        # leave here for reference and delete later
+        # self.assertRaises(TemplateSyntaxError, lambda: Template('{% load fb_versions %}{% version obj.path "medium" %}'))
 
     def test_hardcoded_path(self):
-        t = Template('{% load fb_versions %}{% version_object path "large" as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version path "large" as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE, "path": "_test/uploads/folder/testimage.jpg"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
         self.assertEqual(r, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
 
     def test_obj_path(self):
-        t = Template('{% load fb_versions %}{% version_object obj.path "large" as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj.path "large" as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
         self.assertEqual(r, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
 
     def test_with_obj(self):
-        t = Template('{% load fb_versions %}{% version_object obj "large" as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj "large" as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
         self.assertEqual(r, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
 
     def test_suffix_as_variable(self):
-        t = Template('{% load fb_versions %}{% version_object obj suffix as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj suffix as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE, "suffix": "large"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
@@ -345,7 +402,7 @@ class VersionObjectTemplateTagTests(TestCase):
 
     def test_non_existing_path(self):
         # FIXME: templatetag version with non-existing path
-        t = Template('{% load fb_versions %}{% version_object path "large" as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version path "large" as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE, "path": "_test/uploads/folder/testimagexxx.jpg"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, ""))
@@ -354,7 +411,7 @@ class VersionObjectTemplateTagTests(TestCase):
     @patch('filebrowser.templatetags.fb_versions.SHOW_PLACEHOLDER', True)
     @patch('filebrowser.templatetags.fb_versions.FORCE_PLACEHOLDER', True)
     def test_force_with_existing_image(self):
-        t = Template('{% load fb_versions %}{% version_object obj suffix as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj suffix as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE, "suffix": "large"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/placeholders/testimage_large.jpg"))
@@ -362,7 +419,7 @@ class VersionObjectTemplateTagTests(TestCase):
 
     @patch('filebrowser.templatetags.fb_versions.SHOW_PLACEHOLDER', True)
     def test_no_force_with_existing_image(self):
-        t = Template('{% load fb_versions %}{% version_object obj suffix as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj suffix as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_IMAGE, "suffix": "large"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/folder/testimage_large.jpg"))
@@ -371,7 +428,7 @@ class VersionObjectTemplateTagTests(TestCase):
     @patch('filebrowser.templatetags.fb_versions.SHOW_PLACEHOLDER', True)
     @patch('filebrowser.templatetags.fb_versions.FORCE_PLACEHOLDER', True)
     def test_force_with_non_existing_image(self):
-        t = Template('{% load fb_versions %}{% version_object obj suffix as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj suffix as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_MISSING, "suffix": "large"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/placeholders/testimage_large.jpg"))
@@ -380,7 +437,7 @@ class VersionObjectTemplateTagTests(TestCase):
     @patch('filebrowser.templatetags.fb_versions.SHOW_PLACEHOLDER', True)
     @patch('filebrowser.templatetags.fb_versions.FORCE_PLACEHOLDER', False)
     def test_no_force_with_non_existing_image(self):
-        t = Template('{% load fb_versions %}{% version_object obj suffix as version_large %}{{ version_large.url }}')
+        t = Template('{% load fb_versions %}{% version obj suffix as version_large %}{{ version_large.url }}')
         c = Context({"obj": self.F_MISSING, "suffix": "large"})
         r = t.render(c)
         self.assertEqual(c["version_large"].url, os.path.join(settings.MEDIA_URL, "_test/_versions/placeholders/testimage_large.jpg"))
