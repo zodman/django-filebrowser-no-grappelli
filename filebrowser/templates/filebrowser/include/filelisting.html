@@ -14,12 +14,10 @@
             <td class="fb_icon">
                 {% selectable fileobject.filetype query.type %}
                 {% if selectable %}
-                    <!-- select original -->
-                    <button class="button" onclick="FileSubmit('{{ fileobject.path }}', '{{ fileobject.url }}', '{{ thumbnail_version.url }}', '{{ fileobject.filetype }}');">{% trans "Select" %}</button>
                     <!-- select versions -->
                     {% if fileobject.filetype == "Image" and settings_var.ADMIN_VERSIONS %}
                         <div class="pulldown-versions-container">
-                            <a href="javascript://" class="pulldown-versions-handler" title="{% trans "Versions" %}">&nbsp;</a>
+                            <a href="javascript://" class="button pulldown-versions-handler" title="{% trans "Versions" %}">&nbsp;</a>
                             <ul class="pulldown-versions">
                                 {% for version in settings_var.ADMIN_VERSIONS %}
                                     {% version_setting version %}
@@ -28,6 +26,8 @@
                             </ul>
                         </div>
                     {% endif %}
+                    <!-- select original -->
+                    <a class="button" href="#" onclick="FileSubmit('{{ fileobject.path }}', '{{ fileobject.url }}', '{{ thumbnail_version.url }}', '{{ fileobject.filetype }}');">{% trans "Select" %}</a>
                 {% else %}
                     &nbsp;
                 {% endif %}
@@ -40,12 +40,10 @@
             <td class="fb_icon">
                 {% selectable fileobject.filetype query.type %}
                 {% if selectable %}
-                    <!-- select original -->
-                    <button class="button" onclick="FileBrowserDialogue.fileSubmit('{{ fileobject.url|escapejs }}');">{% trans "Select" %}</button>
                     <!-- select versions -->
                     {% if fileobject.filetype == "Image" and settings_var.ADMIN_VERSIONS %}
                         <div class="pulldown-versions-container">
-                            <a href="javascript://" class="pulldown-versions-handler" title="{% trans "Versions" %}">&nbsp;</a>
+                            <a href="javascript://" class="button pulldown-versions-handler" title="{% trans "Versions" %}">&nbsp;</a>
                             <ul class="pulldown-versions">
                                 {% for version in settings_var.ADMIN_VERSIONS  %}
                                     {% version_setting version %}
@@ -54,6 +52,8 @@
                             </ul>
                         </div>
                     {% endif %}
+                    <!-- select original -->
+                    <a class="button" href="#" onclick="FileBrowserDialogue.fileSubmit('{{ fileobject.url|escapejs }}');">{% trans "Select" %}</a>
                 {% else %}
                     &nbsp;
                 {% endif %}
@@ -65,12 +65,10 @@
             <td class="fb_icon">
                 {% selectable fileobject.filetype query.type %}
                 {% if selectable %}
-                <!-- select original -->
-                <button class="button" onclick="OpenFile(ProtectPath('{{ fileobject.url|escapejs }}'));return false;">{% trans "Select" %}</button>
                 <!-- select versions -->
                 {% if fileobject.filetype == "Image" and settings_var.ADMIN_VERSIONS %}
                     <div class="pulldown-versions-container">
-                        <a href="javascript://" class="pulldown-versions-handler" title="{% trans "Versions" %}">&nbsp;</a>
+                        <a href="javascript://" class="button pulldown-versions-handler" title="{% trans "Versions" %}">&nbsp;</a>
                         <ul class="pulldown-versions">
                             {% for version in settings_var.ADMIN_VERSIONS  %}
                                 {% version_setting version %}
@@ -79,6 +77,8 @@
                         </ul>
                     </div>
                 {% endif %}
+                <!-- select original -->
+                <a class="button" href="#" onclick="OpenFile(ProtectPath('{{ fileobject.url|escapejs }}'));return false;">{% trans "Select" %}</a>
                 {% else %}
                     &nbsp;
                 {% endif %}

@@ -6,6 +6,7 @@ import json
 from time import gmtime, strftime, localtime, time
 
 from django import forms
+from django import VERSION as DJANGO_VERSION
 from django.contrib import messages
 from django.contrib.admin.sites import site as admin_site
 from django.contrib.admin.views.decorators import staff_member_required
@@ -340,7 +341,8 @@ class FileBrowserSite(object):
                 'settings_var': get_settings_var(directory=self.directory),
                 'breadcrumbs': get_breadcrumbs(query, query.get('dir', '')),
                 'breadcrumbs_title': "",
-                'filebrowser_site': self
+                'filebrowser_site': self,
+                'old_design': DJANGO_VERSION < (1, 9)
             }
         ))
 
