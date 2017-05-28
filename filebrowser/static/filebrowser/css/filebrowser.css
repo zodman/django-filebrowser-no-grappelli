@@ -38,7 +38,7 @@
 ul.pulldown-versions {
     display: none;
 }
-.open ul.pulldown-versions {
+ul.pulldown-versions.open {
     display: block;
     position: absolute;
     z-index: 1000;
