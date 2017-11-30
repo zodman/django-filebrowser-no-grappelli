@@ -117,3 +117,20 @@ _('Image')
 _('Video')
 _('Document')
 _('Audio')
+
+
+# Overwrite admin_site.
+# Example: 
+# in file: apps.core.admin define this code.
+
+# from django.contrib import admin
+# class CustomAdmin(admin.AdminSite):
+#     site_header = site_title = 'Custom Admin'
+#     index_title = 'Custom Administration'
+
+# admin_general = CustomAdmin(name='admin_general')
+
+# In settings:
+# FILEBROWSER_CUSTOM_ADMIN = 'apps.core.admin.admin_general'
+
+ADMIN_CUSTOM = getattr(settings, 'FILEBROWSER_CUSTOM_ADMIN', None)
