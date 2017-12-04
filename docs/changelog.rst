@@ -8,6 +8,17 @@
 Changelog
 =========
 
+3.7.3 (December 4th, 2017)
+------------------------
+
+* Compatibility with Django 2.0
+* Add config for use admin_custom
+
+3.7.2 (Jun 8th, 2017)
+------------------------
+
+* Fix AttributeError in Django 1.11 when saving
+
 3.7.1 (May 28th, 2017)
 ------------------------
 
