@@ -8,6 +8,11 @@
 Changelog
 =========
 
+3.7.4 (January 27th, 2018)
+------------------------
+
+* Fix manage dumpdata command for Django 2.0 (by @waustin)
+
 3.7.3 (December 4th, 2017)
 ------------------------
 
