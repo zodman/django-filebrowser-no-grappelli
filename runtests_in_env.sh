@@ -2,7 +2,6 @@
 
 DJANGO_VERSIONS=("1.8" "1.9" "1.10" "1.11" "2.0")
 VIRTUALENV_DIR="envs"
-PROJECTS_DIR="projects"
 BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 python_version() {
@@ -15,7 +14,6 @@ python_version() {
 }
 
 mkdir -p $VIRTUALENV_DIR
-mkdir -p $PROJECTS_DIR
 
 for version in "${DJANGO_VERSIONS[@]}"
 do

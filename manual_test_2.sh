@@ -1,10 +1,16 @@
 #!/bin/bash
 
+set -e
+
 # Setup project for Django >=2
 
 VIRTUALENV_DIR="envs"
 PROJECTS_DIR="projects"
 BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+SED=sed
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    SED=gsed
+fi
 
 echo "prepare projects for manual testing"
 source "$VIRTUALENV_DIR/$1/bin/activate"
@@ -17,21 +23,21 @@ ln -s "$BASEDIR/filebrowser" "$PROJECT_PATH/filebrowser"
 
 echo "
 INSTALLED_APPS = (
-'django.contrib.admin',
-'django.contrib.auth',
-'django.contrib.contenttypes',
-'django.contrib.sessions',
-'django.contrib.messages',
-'django.contrib.staticfiles',
-'filebrowser',
-#'dummy',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'filebrowser',
+    #'dummy',
 )
 
 DATABASES = {
-'default': {
-    'ENGINE': 'django.db.backends.sqlite3',
-    'NAME': os.path.join(BASE_DIR, 'test.db'),
-}
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'test.db'),
+    }
 }
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
@@ -69,22 +75,22 @@ from django.db import models
 from filebrowser.fields import FileBrowseField, FileBrowseUploadField
 
 class DemoItem(models.Model):
-title = models.CharField('Title', max_length=210)
-attach = FileBrowseField('Attach', max_length=200)
-upload = FileBrowseUploadField('Attach', max_length=200)
-    " > dummy/models.py
+    title = models.CharField('Title', max_length=210)
+    attach = FileBrowseField('Attach', max_length=200)
+    upload = FileBrowseUploadField('Attach', max_length=200)
+" > dummy/models.py
 
     echo "
 from django.contrib import admin
 from dummy.models import DemoItem
 
 class DemoAdmin(admin.ModelAdmin):
-pass
+    pass
 
 admin.site.register(DemoItem, DemoAdmin)
     " > dummy/admin.py
 
-    sed -i "s/#'dummy/'dummy/" fb/settings.py
+    $SED -i "s/#'dummy/'dummy/" fb/settings.py
 
     python manage.py makemigrations
 
