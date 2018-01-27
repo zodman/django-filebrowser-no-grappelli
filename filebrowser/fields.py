@@ -116,7 +116,7 @@ class FileBrowseField(CharField):
         return value.path
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         if not value:
             return value
         return value.path
@@ -254,7 +254,7 @@ class FileBrowseUploadField(CharField):
         return value.path
 
     def value_to_string(self, obj):
-        value = self._get_val_from_obj(obj)
+        value = self.value_from_object(obj)
         if not value:
             return value
         return value.path
