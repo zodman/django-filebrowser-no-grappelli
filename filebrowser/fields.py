@@ -113,13 +113,17 @@ class FileBrowseField(CharField):
     def get_prep_value(self, value):
         if not value:
             return value
-        return value.path
+        if  isinstance(value, FileObject):
+            return value.path
+        else:
+            f = FileObject(value)
+            return f.path
+
 
     def value_to_string(self, obj):
         value = self.value_from_object(obj)
         if not value:
             return value
-        return value.path
 
     def formfield(self, **kwargs):
         widget_class = kwargs.get('widget', FileBrowseWidget)
