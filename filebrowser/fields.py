@@ -124,6 +124,7 @@ class FileBrowseField(CharField):
         value = self.value_from_object(obj)
         if not value:
             return value
+        return value.path
 
     def formfield(self, **kwargs):
         widget_class = kwargs.get('widget', FileBrowseWidget)
